@@ -1,14 +1,23 @@
-#! /bin/sh
+#! /bin/bash
+
+set -e
+set -u
+
+cd $(dirname "$0")
 
 if [ -e fdw_private.pem ]; then
 	echo "A private key already exists." >&2
-	exit 1
+	exit 2
 fi
 
+echo "Generating new private / public key pair."
 openssl genrsa -out fdw_private.pem 2048
 openssl rsa -in fdw_private.pem -outform PEM -pubout -out fdw_public.pem
+echo "Finished generating.  Keep fdw_private.pem safe."
+
+echo "Copying public key to fdw_encrypt_password."
 cp fdw_public.pem ../fdw_encrypt_password/fdw_public.pem
-echo "Copied public key to fdw_encrypt_password.  Keep fdw_private.pem safe."
-echo
-echo "Put this in into the privateKeyB64B64ShiftedB64Shifted variable (located in fdw_patches/*_fdw-*-rsa_password.patch"
-./fdw_private_key_encode_c.sh
+
+./fdw_patch_in_key.sh
+
+echo "Ready to compile, install FDWs, and encrypt passwords."

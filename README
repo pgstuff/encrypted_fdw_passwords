@@ -1,9 +1,13 @@
 Replaces unencrypted passwords with encrypted passwords using an RSA key
 pair.
 
-After you patch your FDWs, using unencrypted password will no longer
+A separate encryption script & key can produce encrypted passwords that
+cannot be decrypted without the private key.  The private key is encoded
+into the FDW's binary file.
+
+After you patch your FDWs, using unencrypted passwords will no longer
 work.  This patch uses the standard password field for storing the
-encrypted password.  The existing password field will contain a much
+encrypted password.  The existing password field must contain a much
 longer encrypted password instead of a plain text one.
 
 
@@ -13,18 +17,7 @@ mkdir ~/fdw_pass
 cd ~/fdw_pass
 git clone https://github.com/pgstuff/encrypted_fdw_passwords.git
 cd encrypted_fdw_passwords/fdw_private_key
-bash fdw_new_key_pair.sh
-
-# Edit the patches in ../fdw_patches/*_fdw-*-rsa_password.patch
-# Replace the privateKeyB64B64ShiftedB64Shifted string with the key that
-# was just printed.
-# The line should start with:
-#   char *privateKeyB64B64ShiftedB64Shifted = "
-# And end with:
-#   ";
-# Make sure that there are no spaces between the "'s.
-# Run bash fdw_private_key_encode_c.sh if you need to copy and paste the
-# key again.
+./fdw_new_key_pair.sh
 
 # Run:
 pg_config
@@ -32,7 +25,7 @@ pg_config
 # If pg_config is not found, run:
 locate bin/pg_config
 # And add it to your path with (adjust as necessary):
-export PATH=/usr/local/pgsql/bin:$PATH
+export PATH=/usr/pgsql-9.5/bin:$PATH
 
 cd ~/fdw_pass
 git clone git://git.postgresql.org/git/postgresql.git
@@ -47,21 +40,22 @@ make clean
 make
 # If the make command works, then the patch is ready.
 patch < ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/postgres_fdw-REL9_5_0-rsa_password.patch
-# If you forgot to edit the patch, then replace the key in the file
-# connection.c (privateKeyB64B64ShiftedB64Shifted)
+make clean
 make
 sudo make install
 # If the install is not pointing in the correct location, you can copy
 # the file postgres_fdw.so manually.
+sudo cp -p /usr/local/pgsql/lib/postgres_fdw.so /usr/pgsql-9.5/lib/postgres_fdw.so
 
 cd ~/fdw_pass/encrypted_fdw_passwords/fdw_encrypt_password
-bash fdw_encrypt.sh
+./fdw_encrypt.sh
 # Enter the password.  The password will be echo'ed as you type.
 # If you are confident about your copy and paste accuracy or typing
 # skills and do not want the passwords displayed, add -s to the read
 # command in the shell script.  Note that you may not get a friendly
 # error if the password is incorrect.
 # Paste the encrypted password into the FDW's password field.
+# The output of the script can also be piped to a file.
 # It is safe to distribute the two files in the fdw_encrypt_password
 # directory so that anyone can produce encrypted passwords.
 # The password cannot be decrypted using those files.
@@ -80,9 +74,8 @@ cd tds_fdw
 git checkout tags/v1.0.7
 make
 # Test the compile before applying the patch with this make command.
-# Update the variable privateKeyB64B64ShiftedB64Shifted in the patch
-# if you have not done so already.
 git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/tds_fdw-v1.0.7-rsa_password.patch
+make clean
 make
 sudo PATH=$PATH make install
 
@@ -92,20 +85,18 @@ cd oracle_fdw
 git checkout tags/ORACLE_FDW_1_3_0
 make
 # Test the compile before applying the patch with this make command.
-# Update the variable privateKeyB64B64ShiftedB64Shifted in the patch
-# if you have not done so already.
 git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/oracle_fdw-ORACLE_FDW_1_3_0-rsa_password.patch
+make clean
 make
 sudo PATH=$PATH make install
 
 cd ~/fdw_pass
 git clone https://github.com/credativ/informix_fdw.git
 cd informix_fdw
-git checkout bd827874cdf0d1b7fd06da7feb0f5938fdc8d698
+git checkout tags/REL0_3_1
 make
 # Test the compile before applying the patch with this make command.
-# Update the variable privateKeyB64B64ShiftedB64Shifted in the patch
-# if you have not done so already.
-git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/informix_fdw-bd827874cdf0d1b7fd06da7feb0f5938fdc8d698-rsa_password.patch
+git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/informix_fdw-REL0_3_1-rsa_password.patch
+make clean
 make
 sudo PATH=$PATH make install
