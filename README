@@ -25,12 +25,12 @@ pg_config
 # If pg_config is not found, run:
 locate bin/pg_config
 # And add it to your path with (adjust as necessary):
-export PATH=/usr/pgsql-9.5/bin:$PATH
+export PATH=/usr/pgsql-9.6/bin:$PATH
 
 cd ~/fdw_pass
 git clone git://git.postgresql.org/git/postgresql.git
 cd postgresql
-git checkout tags/REL9_5_0
+git checkout tags/REL9_6_0
 ./configure
 # If configure fails, install the necessary packages.
 make world
@@ -39,13 +39,13 @@ cd contrib/postgres_fdw
 make clean
 make
 # If the make command works, then the patch is ready.
-patch < ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/postgres_fdw-REL9_5_0-rsa_password.patch
+patch < ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/postgres_fdw-REL9_6_0-rsa_password.patch
 make clean
 make
 sudo make install
 # If the install is not pointing in the correct location, you can copy
 # the file postgres_fdw.so manually.
-sudo cp -p /usr/local/pgsql/lib/postgres_fdw.so /usr/pgsql-9.5/lib/postgres_fdw.so
+sudo cp -p /usr/local/pgsql/lib/postgres_fdw.so /usr/pgsql-9.6/lib/postgres_fdw.so
 
 cd ~/fdw_pass/encrypted_fdw_passwords/fdw_encrypt_password
 ./fdw_encrypt.sh
@@ -69,12 +69,12 @@ FDWs before.  The dependencies of these FDWs, such as native clients,
 are not covered here.
 
 cd ~/fdw_pass
-git clone https://github.com/GeoffMontee/tds_fdw.git
+git clone https://github.com/tds-fdw/tds_fdw.git
 cd tds_fdw
-git checkout tags/v1.0.7
+git checkout 3a803c5840b8cf69e1a725fb4377d0f95a53a4e9
 make
 # Test the compile before applying the patch with this make command.
-git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/tds_fdw-v1.0.7-rsa_password.patch
+git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/tds_fdw-3a803c5840b8cf69e1a725fb4377d0f95a53a4e9-rsa_password.patch
 make clean
 make
 sudo PATH=$PATH make install
@@ -82,10 +82,10 @@ sudo PATH=$PATH make install
 cd ~/fdw_pass
 git clone https://github.com/laurenz/oracle_fdw.git
 cd oracle_fdw
-git checkout tags/ORACLE_FDW_1_3_0
+git checkout tags/ORACLE_FDW_1_5_0
 make
 # Test the compile before applying the patch with this make command.
-git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/oracle_fdw-ORACLE_FDW_1_3_0-rsa_password.patch
+git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/oracle_fdw-ORACLE_FDW_1_5_0-rsa_password.patch
 make clean
 make
 sudo PATH=$PATH make install
@@ -93,7 +93,6 @@ sudo PATH=$PATH make install
 cd ~/fdw_pass
 git clone https://github.com/credativ/informix_fdw.git
 cd informix_fdw
-git checkout tags/REL0_3_1
 make
 # Test the compile before applying the patch with this make command.
 git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/informix_fdw-REL0_3_1-rsa_password.patch
