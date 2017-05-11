@@ -71,10 +71,10 @@ are not covered here.
 cd ~/fdw_pass
 git clone https://github.com/tds-fdw/tds_fdw.git
 cd tds_fdw
-git checkout 3a803c5840b8cf69e1a725fb4377d0f95a53a4e9
+git checkout tags/v1.0.8
 make
 # Test the compile before applying the patch with this make command.
-git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/tds_fdw-3a803c5840b8cf69e1a725fb4377d0f95a53a4e9-rsa_password.patch
+git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/tds_fdw-v1.0.8-rsa_password.patch
 make clean
 make
 sudo PATH=$PATH make install
@@ -93,9 +93,10 @@ sudo PATH=$PATH make install
 cd ~/fdw_pass
 git clone https://github.com/credativ/informix_fdw.git
 cd informix_fdw
+git checkout tags/REL0_4_0
 make
 # Test the compile before applying the patch with this make command.
-git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/informix_fdw-REL0_3_1-rsa_password.patch
+git apply ~/fdw_pass/encrypted_fdw_passwords/fdw_patches/informix_fdw-REL0_4_0-rsa_password.patch
 make clean
 make
 sudo PATH=$PATH make install
